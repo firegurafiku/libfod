@@ -1,9 +1,10 @@
 %name querylang_parser
 %start_symbol main
+%stack_size 0
 
 //%extra_argument {void (*reclaim)(void *)}
 %include{
-    #include "fod_parser_impl.h"
+    #include "fod_tokens.h"
 }
 
 %left TOK_OPERATOR_OR.
@@ -16,11 +17,7 @@
       TOK_OPERATOR_GT.
 %left TOK_OPERATOR_NOT.
 
-%token_type {Token}
-
-//%type TOK_PARAM_UINT   {cl_device_info}
-//%type TOK_LITERAL_UINT {fod_longest_uint}
-//%type TOK_LITERAL_STR  {char *}
+%token_type {union fod_token}
 
 // Awesome feature!
 // %token_destructor { reclaim($$); }
@@ -35,7 +32,7 @@ expression(R) ::= TOK_OPERATOR_NOT expression(A).               { R = !A; }
 expression(R) ::= expression(A) TOK_OPERATOR_AND expression(B). { R = A && B; }
 expression(R) ::= expression(A) TOK_OPERATOR_OR  expression(B). { R = A || B; }
 
-%type operator_uint {enum comparison}
+%type operator_uint {enum fod_comparison}
 operator_uint(R) ::= TOK_OPERATOR_EQ. { R = COMPARISON_EQ; }
 operator_uint(R) ::= TOK_OPERATOR_NE. { R = COMPARISON_NE; }
 operator_uint(R) ::= TOK_OPERATOR_LE. { R = COMPARISON_LE; }
@@ -44,15 +41,15 @@ operator_uint(R) ::= TOK_OPERATOR_LT. { R = COMPARISON_LT; }
 operator_uint(R) ::= TOK_OPERATOR_GT. { R = COMPARISON_GT; }
 
 %type comparison {int}
-comparison(R) ::= PARAM_UINT(A) operator_uint(X) PARAM_UINT(B). {
+comparison(R) ::= TOK_PARAM_UINT(A) operator_uint(X) TOK_PARAM_UINT(B). {
     R = fod_compare_uint_pp(X, A.device_param_code, B.device_param_code);
 }
 
-comparison(R) ::= PARAM_UINT(A) operator_uint(X) LITERAL_UINT(B). {
+comparison(R) ::= TOK_PARAM_UINT(A) operator_uint(X) TOK_LITERAL_UINT(B). {
     R = fod_compare_uint_pl(X, A.device_param_code, B.uint_literal_val);
 }
 
-comparison(R) ::= LITERAL_UINT(A) operator_uint(X) PARAM_UINT(B). {
+comparison(R) ::= TOK_LITERAL_UINT(A) operator_uint(X) TOK_PARAM_UINT(B). {
     R = fod_compare_uint_pl(inverse_comparison(X),
 			    B.device_param_code, A.uint_literal_val);
 }
