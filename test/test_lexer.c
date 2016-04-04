@@ -2,6 +2,7 @@
 #include <stdarg.h>
 #include <setjmp.h>
 #include <cmocka.h>
+#include "fod_common.h"
 #include "fod_lexer.h"
 
 extern void test_lexer_valid1(void **st) {
@@ -61,4 +62,50 @@ extern void test_lexer_valid2(void **st) {
     assert_false(res);
     assert_true(lex.is_eof);
     assert_false(lex.is_error);
+}
+
+extern void test_lexer_valid3(void **st) {
+
+    char const *expression =
+	"''   '\\\"'   \"'\"    \"\\\"\"   \n"
+	"\"\\\"they're\\\" is not \\\"their\\\"\"  \f\v"
+	"\t '[\\n\\t\\f\\v\\a\\b\\0\\r]'  ";
+	
+    struct fod_lexer lex;
+    fod_lexer_init(&lex, expression, fod_std_realloc, NULL);
+
+    char const *expected[] = {
+        "",
+	"\"",
+	"'",
+	"\"",
+	"\"they're\" is not \"their\"",
+	"[\n\t\f\v\a\b\0\r]"
+    };
+
+    int n = sizeof(expected)/sizeof(*expected);
+    int i;
+    int res;
+    int maj;
+    union fod_token min;
+
+    for (i=0; i<n; ++i) {
+	res = fod_lexer_tokenize(&lex, &maj, &min);
+	assert_true(res);
+	assert_false(lex.is_eof);
+	assert_false(lex.is_error);
+	assert_int_equal(maj, TOK_LITERAL_STR);
+	assert_non_null(min.uint_literal_val);
+	assert_string_equal(min.uint_literal_val, expected[i]);
+
+	/* Free memory before it's track is lost. */
+	fod_std_realloc(min.uint_literal_val, 0, NULL);
+    }
+    
+    res = fod_lexer_tokenize(&lex, &maj, &min);
+    assert_false(res);
+    assert_true(lex.is_eof);
+    assert_false(lex.is_error);
+
+    fod_lexer_close(&lex);
 }

@@ -53,8 +53,8 @@ int fod_lexer_tokenize(
     
     %%{
     number = digit+;
-    single_quoted_string = "'" ([^']|"'")* "'";
-    double_quoted_string = '"' ([^"]|'"')* '"';
+    single_quoted_string = "'" ([^']|"\\'")* "'";
+    double_quoted_string = '"' ([^"]|'\\"')* '"';
     main := |*
         # Skip any whitespaces which are not in string literal.
         space+ => { printf("SPACES\n"); };
