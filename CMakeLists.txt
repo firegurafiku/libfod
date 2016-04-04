@@ -11,6 +11,15 @@ set(B "${CMAKE_CURRENT_BINARY_DIR}")
 # Thirdparty libraries lookup.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${S}/cmake")
 find_package(OpenCL REQUIRED)
+find_package(PythonInterp REQUIRED)
+find_program(LEMON lemon)
+find_program(RAGEL ragel)
+
+# Build options.
+option(FOD_CONFIG_UNIT_TESTS "Build unit-tests for library")
+option(FOD_CONFIG_CPPCHECK   "Check library sources with CppCheck")
+option(FOD_CONFIG_VALGRIND   "Check library unit tests with Valgrind")
+option(FOD_INSTALL_SOURCES   "Install source files too")
 
 if("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU")
 
@@ -66,30 +75,69 @@ endif()
 
 include_directories(
     "${S}/include"
-    "${S}/src")
+    "${S}/src"
+    "${B}/src")
 
-  add_custom_command(
+add_custom_command(
     OUTPUT  "${B}/src/fod_lexer.c"
     DEPENDS "${S}/src/fod_lexer.rl"
             "${B}/src/fod_parser.h"
-    COMMAND cmake -E copy "${S}/src/fod_lexer.rl" "${B}/src/fod_lexer.rl"
-    COMMAND ragel -C "${B}/src/fod_lexer.rl" 
+    COMMAND "${CMAKE_COMMAND}" -E make_directory "${B}/src"
+    COMMAND "${CMAKE_COMMAND}" -E copy
+	        "${S}/src/fod_lexer.rl" "${B}/src/fod_lexer.rl"
+    COMMAND "${RAGEL}" -C "${B}/src/fod_lexer.rl" 
     COMMENT "Generating lexer code with Ragel")
   
 add_custom_command(
     OUTPUT  "${B}/src/fod_parser.h"
             "${B}/src/fod_parser.c"
     DEPENDS "${S}/src/fod_parser.y"
-    COMMAND cmake -E copy "${S}/src/fod_parser.y" "${B}/src/fod_parser.y"
-    COMMAND lemon "${B}/src/fod_parser.y"
+    COMMAND "${CMAKE_COMMAND}" -E make_directory "${B}/src"
+    COMMAND "${CMAKE_COMMAND}" -E copy
+                "${S}/src/fod_parser.y" "${B}/src/fod_parser.y"
+    COMMAND "${LEMON}" "${B}/src/fod_parser.y"
     COMMENT "Generating parser code with LEMON")
 
-  add_library(fod STATIC
+add_library(fod STATIC
     "${B}/src/fod_lexer.c"
-    "${B}/src/fod_parser.c"
-    )
-# add_library(SHARED)
+    "${B}/src/fod_parser.c")
 
-# custom_command(ragel)
-# custom_command(lemon)
-# 
+# -- unit tests --
+if(FOD_CONFIG_UNIT_TESTS)
+    find_package(PythonInterp REQUIRED)
+    find_package(CMocka       REQUIRED)
+
+    add_executable(test_fod
+        "${S}/test/main_cmocka.c"
+        "${B}/test/generated_tests.h"
+        "${S}/test/test_lexer.c")
+
+    target_include_directories(test_fod PRIVATE "${B}/test")
+    target_link_libraries(test_fod fod "${CMOCKA_LIBRARY}")
+    
+    # Gather all '*.c' files from 'rvlmfdtd-test' target into TEST_SOURCES.
+    get_target_property(TEST_SOURCES_TMP test_fod SOURCES)
+    set(TEST_SOURCES)
+    foreach(ITEM ${TEST_SOURCES_TMP})
+        string(REGEX MATCH ".c$" ITEM_MATCH "${ITEM}")
+        if(ITEM_MATCH)
+            list(APPEND TEST_SOURCES "${ITEM}")
+        endif()
+    endforeach()
+
+    add_custom_command(
+        OUTPUT  "${B}/test/generated_tests.h"
+        DEPENDS "${S}/tools/generate_test_registry.py" ${TEST_SOURCES}
+        COMMAND "${CMAKE_COMMAND}" -E make_directory "${B}/test"
+        COMMAND "${PYTHON_EXECUTABLE}"
+                "${S}/tools/generate_test_registry.py"
+                    --output "${B}/test/generated_tests.h"
+                ${TEST_SOURCES}
+        COMMENT "Generating CMocka registry header file")
+
+    if (FOD_CONFIG_VALGRIND)
+        add_test(test_fod valgrind ./test_fod)
+    else()
+        add_test(test_fod test_fod)
+    endif()
+endif()

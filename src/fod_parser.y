@@ -1,8 +1,8 @@
-%name querylang_parser
+%name fod_parser
 %start_symbol main
-%stack_size 0
-
+%stack_size 20
 //%extra_argument {void (*reclaim)(void *)}
+
 %include{
     #include "fod_tokens.h"
 }

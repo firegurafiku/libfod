@@ -2,6 +2,7 @@
 #define FOD_TOKENS_H_
 
 #include <CL/cl.h>
+#include "fod_parser.h"
 
 typedef unsigned long long fod_longest_uint;
 
