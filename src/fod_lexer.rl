@@ -47,11 +47,6 @@ int fod_lexer_tokenize(
     int cs  = lex->current_state;
     int act = lex->current_action;
     
-    if (p >= pe) {
-        lex->is_eof = 1;
-        return 0;
-    }
-
     /* In Lemon, valid token major code is never zero, 'cause zero
        means 'EOF'. Let's return it in case of errors. */
     *out_major = 0;
@@ -112,8 +107,12 @@ int fod_lexer_tokenize(
     }%%
 
     if (*out_major == 0) {
-        lex->is_error = 1;
-        return 0;
+        if (p == pe)
+	    lex->is_eof = 1;
+	else
+	    lex->is_error = 1;
+	    
+        return 0;    
     }
 
     /* No need to save 'pe' here. */

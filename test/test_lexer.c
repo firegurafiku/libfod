@@ -7,7 +7,7 @@
 extern void test_lexer_valid1(void **st) {
 
     struct fod_lexer lex;
-    fod_lexer_init(&lex, "   ((!!=&&||>>===<<===", NULL, NULL);
+    fod_lexer_init(&lex, "   ((!!=&&||>>===<<===  ", NULL, NULL);
 
     int expected[] = {
 	TOK_PAREN_LEFT,   TOK_PAREN_LEFT,  TOK_OPERATOR_NOT, TOK_OPERATOR_NE,
