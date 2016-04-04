@@ -100,7 +100,8 @@ add_custom_command(
 
 add_library(fod STATIC
     "${B}/src/fod_lexer.c"
-    "${B}/src/fod_parser.c")
+    "${B}/src/fod_parser.c"
+    "${S}/src/fod_common.c")
 
 # -- unit tests --
 if(FOD_CONFIG_UNIT_TESTS)
@@ -110,6 +111,7 @@ if(FOD_CONFIG_UNIT_TESTS)
     add_executable(test_fod
         "${S}/test/main_cmocka.c"
         "${B}/test/generated_tests.h"
+	"${S}/test/test_common.c"
         "${S}/test/test_lexer.c")
 
     target_include_directories(test_fod PRIVATE "${B}/test")

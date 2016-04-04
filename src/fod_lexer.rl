@@ -81,9 +81,13 @@ int fod_lexer_tokenize(
 
         # Unsigned integer literal.
         number => {
-        *out_major = TOK_LITERAL_UINT;
-        out_minor->uint_literal_val = -1;
-        fbreak;
+	    fod_longest_uint res;
+	    if (!fod_substring_to_uint(&res, ts, te))
+	       fbreak;
+	    
+            *out_major = TOK_LITERAL_UINT;
+            out_minor->uint_literal_val = res;
+            fbreak;
         };
 
         # single_quoted_string |

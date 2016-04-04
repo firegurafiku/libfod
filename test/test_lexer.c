@@ -33,3 +33,32 @@ extern void test_lexer_valid1(void **st) {
     assert_true(lex.is_eof);
     assert_false(lex.is_error);
 }
+
+extern void test_lexer_valid2(void **st) {
+
+    struct fod_lexer lex;
+    fod_lexer_init(&lex, "12345 1234567890123456789", NULL, NULL);
+
+    int res;
+    int maj;
+    union fod_token min;
+    
+    res = fod_lexer_tokenize(&lex, &maj, &min);
+    assert_true(res);
+    assert_false(lex.is_eof);
+    assert_false(lex.is_error);
+    assert_int_equal(maj, TOK_LITERAL_UINT);
+    assert_true(min.uint_literal_val == 12345u);
+    
+    res = fod_lexer_tokenize(&lex, &maj, &min);
+    assert_true(res);
+    assert_false(lex.is_eof);
+    assert_false(lex.is_error);
+    assert_int_equal(maj, TOK_LITERAL_UINT);
+    assert_true(min.uint_literal_val == 1234567890123456789);
+
+    res = fod_lexer_tokenize(&lex, &maj, &min);
+    assert_false(res);
+    assert_true(lex.is_eof);
+    assert_false(lex.is_error);
+}
