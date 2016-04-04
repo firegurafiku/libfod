@@ -109,3 +109,48 @@ extern void test_lexer_valid3(void **st) {
 
     fod_lexer_close(&lex);
 }
+
+extern void test_lexer_valid_identifiers(void **st) {
+
+    char const *expression = " !device_available && deviceAvailable  ";
+
+    struct fod_lexer lex;
+    fod_lexer_init(&lex, expression, fod_std_realloc, NULL);
+
+    int res;
+    int maj;
+    union fod_token min;
+
+    res = fod_lexer_tokenize(&lex, &maj, &min);
+    assert_true(res);
+    assert_false(lex.is_eof);
+    assert_false(lex.is_error);
+    assert_int_equal(maj, TOK_OPERATOR_NOT);
+
+    res = fod_lexer_tokenize(&lex, &maj, &min);
+    assert_true(res);
+    assert_false(lex.is_eof);
+    assert_false(lex.is_error);
+    assert_int_equal(maj, TOK_PARAM_BOOL);
+    assert_int_equal(min.device_param_code, CL_DEVICE_AVAILABLE);
+
+    res = fod_lexer_tokenize(&lex, &maj, &min);
+    assert_true(res);
+    assert_false(lex.is_eof);
+    assert_false(lex.is_error);
+    assert_int_equal(maj, TOK_OPERATOR_AND);
+    
+    res = fod_lexer_tokenize(&lex, &maj, &min);
+    assert_true(res);
+    assert_false(lex.is_eof);
+    assert_false(lex.is_error);
+    assert_int_equal(maj, TOK_PARAM_BOOL);
+    assert_int_equal(min.device_param_code, CL_DEVICE_AVAILABLE);
+
+    res = fod_lexer_tokenize(&lex, &maj, &min);
+    assert_false(res);
+    assert_true(lex.is_eof);
+    assert_false(lex.is_error);
+
+    fod_lexer_close(&lex);
+}

@@ -85,20 +85,18 @@ int fod_lexer_tokenize(
             fbreak;
         };
 
-        # single_quoted_string |
-        # double_quoted_string => {
-        #   *out_major = TOK_LITERAL_STR;
-        #   out_minor->str_literal_val = fod_duplicate_string(ts, te);
-        # fbreak;
-        # };
+        single_quoted_string |
+        double_quoted_string => {
+	    char *str = fod_substring_duplicate_and_unquote(ts, te,
+                                            lex->realloc, lex->realloc_arg);
+	    if (str == NULL)
+	        fbreak;
 
-        # 'cl_device_available' |
-        # 'device_available'    |
-        # 'deviceAvailable'     |   
-        # 'available' => {
-        #     *out_major = TOK_PARAM_BOOL;
-        #       out_minor->device_param_code = CL_DEVICE_AVAILABLE;
-        # };
+            *out_major = TOK_LITERAL_STR;
+            out_minor->str_literal_val = str;
+            fbreak;
+        };
+
 
     *|;
 
