@@ -6,19 +6,20 @@
 #include "fod_lexer.h"
 
 extern void test_lexer_valid1(void **st) {
+    (void)st;
 
     struct fod_lexer lex;
     fod_lexer_init(&lex, "   ((!!=&&||>>===<<===  ", NULL, NULL);
 
     int expected[] = {
-	TOK_PAREN_LEFT,   TOK_PAREN_LEFT,  TOK_OPERATOR_NOT, TOK_OPERATOR_NE,
-	TOK_OPERATOR_AND, TOK_OPERATOR_OR, TOK_OPERATOR_GT,  TOK_OPERATOR_GE,
-	TOK_OPERATOR_EQ,  TOK_OPERATOR_LT,  TOK_OPERATOR_LE, TOK_OPERATOR_EQ };
+	LEX_PAREN_LEFT,   LEX_PAREN_LEFT,  LEX_OPERATOR_NOT, LEX_OPERATOR_NE,
+	LEX_OPERATOR_AND, LEX_OPERATOR_OR, LEX_OPERATOR_GT,  LEX_OPERATOR_GE,
+	LEX_OPERATOR_EQ,  LEX_OPERATOR_LT,  LEX_OPERATOR_LE, LEX_OPERATOR_EQ };
 
     int n = sizeof(expected)/sizeof(*expected);
     int res;
-    int maj;
-    union fod_token min;
+    enum fod_lexeme_major maj;
+    struct fod_lexeme_minor min;
     
     int i;
     for (i = 0; i < n; ++i) {
@@ -36,27 +37,28 @@ extern void test_lexer_valid1(void **st) {
 }
 
 extern void test_lexer_valid2(void **st) {
+    (void)st;
 
     struct fod_lexer lex;
     fod_lexer_init(&lex, "12345 1234567890123456789", NULL, NULL);
 
     int res;
-    int maj;
-    union fod_token min;
+    enum fod_lexeme_major maj;
+    struct fod_lexeme_minor min;
     
     res = fod_lexer_tokenize(&lex, &maj, &min);
     assert_true(res);
     assert_false(lex.is_eof);
     assert_false(lex.is_error);
-    assert_int_equal(maj, TOK_LITERAL_UINT);
-    assert_true(min.uint_literal_val == 12345u);
+    assert_int_equal(maj, LEX_LITERAL_NUMBER);
+    assert_true(min.literal_number == 12345u);
     
     res = fod_lexer_tokenize(&lex, &maj, &min);
     assert_true(res);
     assert_false(lex.is_eof);
     assert_false(lex.is_error);
-    assert_int_equal(maj, TOK_LITERAL_UINT);
-    assert_true(min.uint_literal_val == 1234567890123456789);
+    assert_int_equal(maj, LEX_LITERAL_NUMBER);
+    assert_true(min.literal_number == 1234567890123456789);
 
     res = fod_lexer_tokenize(&lex, &maj, &min);
     assert_false(res);
@@ -65,6 +67,7 @@ extern void test_lexer_valid2(void **st) {
 }
 
 extern void test_lexer_valid3(void **st) {
+    (void)st;
 
     char const *expression =
 	"''   '\\\"'   \"'\"    \"\\\"\"   \n"
@@ -86,20 +89,20 @@ extern void test_lexer_valid3(void **st) {
     int n = sizeof(expected)/sizeof(*expected);
     int i;
     int res;
-    int maj;
-    union fod_token min;
+    enum fod_lexeme_major maj;
+    struct fod_lexeme_minor min;
 
     for (i=0; i<n; ++i) {
 	res = fod_lexer_tokenize(&lex, &maj, &min);
 	assert_true(res);
 	assert_false(lex.is_eof);
 	assert_false(lex.is_error);
-	assert_int_equal(maj, TOK_LITERAL_STR);
-	assert_non_null(min.uint_literal_val);
-	assert_string_equal(min.uint_literal_val, expected[i]);
+	assert_int_equal(maj, LEX_LITERAL_STRING);
+	assert_non_null(min.literal_string);
+	assert_string_equal(min.literal_string, expected[i]);
 
 	/* Free memory before it's track is lost. */
-	fod_std_realloc(min.uint_literal_val, 0, NULL);
+	fod_std_realloc(min.literal_string, 0, NULL);
     }
     
     res = fod_lexer_tokenize(&lex, &maj, &min);
@@ -111,40 +114,41 @@ extern void test_lexer_valid3(void **st) {
 }
 
 extern void test_lexer_valid_identifiers(void **st) {
-
+    (void)st;
+    
     char const *expression = " !device_available && deviceAvailable  ";
 
     struct fod_lexer lex;
     fod_lexer_init(&lex, expression, fod_std_realloc, NULL);
 
     int res;
-    int maj;
-    union fod_token min;
+    enum fod_lexeme_major maj;
+    struct fod_lexeme_minor min;
 
     res = fod_lexer_tokenize(&lex, &maj, &min);
     assert_true(res);
     assert_false(lex.is_eof);
     assert_false(lex.is_error);
-    assert_int_equal(maj, TOK_OPERATOR_NOT);
+    assert_int_equal(maj, LEX_OPERATOR_NOT);
 
     res = fod_lexer_tokenize(&lex, &maj, &min);
     assert_true(res);
     assert_false(lex.is_eof);
     assert_false(lex.is_error);
-    assert_int_equal(maj, TOK_PARAM_BOOL);
+    assert_int_equal(maj, LEX_PARAM_BOOL);
     assert_int_equal(min.device_param_code, CL_DEVICE_AVAILABLE);
 
     res = fod_lexer_tokenize(&lex, &maj, &min);
     assert_true(res);
     assert_false(lex.is_eof);
     assert_false(lex.is_error);
-    assert_int_equal(maj, TOK_OPERATOR_AND);
+    assert_int_equal(maj, LEX_OPERATOR_AND);
     
     res = fod_lexer_tokenize(&lex, &maj, &min);
     assert_true(res);
     assert_false(lex.is_eof);
     assert_false(lex.is_error);
-    assert_int_equal(maj, TOK_PARAM_BOOL);
+    assert_int_equal(maj, LEX_PARAM_BOOL);
     assert_int_equal(min.device_param_code, CL_DEVICE_AVAILABLE);
 
     res = fod_lexer_tokenize(&lex, &maj, &min);

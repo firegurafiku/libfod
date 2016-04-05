@@ -4,6 +4,37 @@
 #include "fod_common.h"
 #include "fod_tokens.h"
 
+enum fod_lexeme_major {
+    LEX_EOF,
+    LEX_PAREN_LEFT,
+    LEX_PAREN_RIGHT,
+    LEX_OPERATOR_NOT,
+    LEX_OPERATOR_AND,
+    LEX_OPERATOR_OR,
+    LEX_OPERATOR_EQ,
+    LEX_OPERATOR_NE,
+    LEX_OPERATOR_LT,
+    LEX_OPERATOR_GT,
+    LEX_OPERATOR_LE,
+    LEX_OPERATOR_GE,
+    LEX_LITERAL_NUMBER,
+    LEX_LITERAL_STRING,
+    LEX_PARAM_UINT,
+    LEX_PARAM_ULONG,
+    LEX_PARAM_SIZE_T,
+    LEX_PARAM_BOOL,
+    LEX_PARAM_FP_CONFIG,
+    LEX_PARAM_STRING
+};
+
+struct fod_lexeme_minor {
+    fod_longest_uint    literal_number;
+    char               *literal_string;
+    cl_device_info      device_param_code;
+    cl_platform_info    platform_param_code;
+    cl_device_fp_config fp_config_mask;
+};
+
 struct fod_lexer {
 
     /* Memory reallocator and its closure argument. */
@@ -33,9 +64,9 @@ void fod_lexer_init(
 	void             *realloc_arg);
 
 int fod_lexer_tokenize(
-        struct fod_lexer *lex,
-        int              *out_major,
-        union fod_token  *out_minor);
+        struct fod_lexer        *lex,
+        enum fod_lexeme_major   *out_major,
+        struct fod_lexeme_minor *out_minor);
 
 void fod_lexer_close(struct fod_lexer *lex);
 
