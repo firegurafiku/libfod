@@ -1,9 +1,12 @@
-%name fod_parser
+%name fod_lemon_parser_
 %start_symbol main
 %stack_size 20
+%extra_argument {struct fod_parser *state}
 
 %include{
-    #include "fod_tokens.h"
+    #include <assert.h>
+    #include <stdio.h>
+    #include "fod_parser.h"
 }
 
 %left TOK_OPERATOR_OR.
@@ -18,8 +21,21 @@
 
 %token_type {union fod_token}
 
-%type main {int}
-main(R) ::= expression(A). { R = A; }
+%stack_overflow {
+    state->is_error = 1;
+    printf("PARSER: Stack overflow\n");
+}
+
+%syntax_error {
+    state->is_error = 1;
+    printf("PARSER: Syntax error\n");
+}
+
+main ::= expression(A). {
+    state->is_error = 0;
+    state->result = A;
+    printf("PARSER: Success!\n");
+}
 
 %type expression {int}
 expression(R) ::= comparison(A).                                { R = A; }

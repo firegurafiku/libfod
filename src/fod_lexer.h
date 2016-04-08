@@ -2,7 +2,6 @@
 #define FOD_LEXER_H_
 
 #include "fod_common.h"
-#include "fod_tokens.h"
 
 enum fod_lexeme_major {
     LEX_EOF,
@@ -40,7 +39,7 @@ struct fod_lexer {
     /* Memory reallocator and its closure argument. */
     fod_reallocator realloc;
     void           *realloc_arg;
-
+    
     /* Original input string. */
     char const *input;
     char const *input_end;

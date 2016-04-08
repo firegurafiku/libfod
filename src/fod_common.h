@@ -2,6 +2,7 @@
 #define FOD_COMMON_H_
 
 #include <stddef.h>
+#include <CL/cl.h>
 
 typedef unsigned long long fod_longest_uint;
 

@@ -1,7 +1,6 @@
 #include "fod_common.h"
-#include "fod_tokens.h"
 #include "fod_lexer.h"
-#include "string.h"
+#include <string.h>
 #include <stdio.h>
 
 %% machine fod_lexer;

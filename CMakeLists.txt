@@ -81,7 +81,7 @@ include_directories(
 add_custom_command(
     OUTPUT  "${B}/src/fod_lexer.c"
     DEPENDS "${S}/src/fod_lexer.rl"
-            "${B}/src/fod_parser.h"
+            "${B}/src/fod_parser_gen.h"
     COMMAND "${CMAKE_COMMAND}" -E make_directory "${B}/src"
     COMMAND "${CMAKE_COMMAND}" -E copy
 	        "${S}/src/fod_lexer.rl" "${B}/src/fod_lexer.rl"
@@ -89,18 +89,19 @@ add_custom_command(
     COMMENT "Generating lexer code with Ragel")
   
 add_custom_command(
-    OUTPUT  "${B}/src/fod_parser.h"
-            "${B}/src/fod_parser.c"
-    DEPENDS "${S}/src/fod_parser.y"
+    OUTPUT  "${B}/src/fod_parser_gen.h"
+            "${B}/src/fod_parser_gen.c"
+    DEPENDS "${S}/src/fod_parser_gen.y"
     COMMAND "${CMAKE_COMMAND}" -E make_directory "${B}/src"
     COMMAND "${CMAKE_COMMAND}" -E copy
-                "${S}/src/fod_parser.y" "${B}/src/fod_parser.y"
-    COMMAND "${LEMON}" "${B}/src/fod_parser.y"
+                "${S}/src/fod_parser_gen.y" "${B}/src/fod_parser_gen.y"
+    COMMAND "${LEMON}" "${B}/src/fod_parser_gen.y"
     COMMENT "Generating parser code with LEMON")
 
 add_library(fod STATIC
     "${B}/src/fod_lexer.c"
-    "${B}/src/fod_parser.c"
+    "${S}/src/fod_parser.c"
+    "${B}/src/fod_parser_gen.c"
     "${S}/src/fod_common.c")
 
 # -- unit tests --
@@ -112,7 +113,8 @@ if(FOD_CONFIG_UNIT_TESTS)
         "${S}/test/main_cmocka.c"
         "${B}/test/generated_tests.h"
 	"${S}/test/test_common.c"
-        "${S}/test/test_lexer.c")
+        "${S}/test/test_lexer.c"
+        "${S}/test/test_parser.c")
 
     target_include_directories(test_fod PRIVATE "${B}/test")
     target_link_libraries(test_fod fod "${CMOCKA_LIBRARY}")
