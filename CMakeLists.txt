@@ -113,11 +113,13 @@ if(FOD_CONFIG_UNIT_TESTS)
         "${S}/test/main_cmocka.c"
         "${B}/test/generated_tests.h"
 	"${S}/test/test_common.c"
+	"${S}/test/test_evaltoken.c"
         "${S}/test/test_lexer.c"
-        "${S}/test/test_parser.c")
+        "${S}/test/test_parser.c"
+	)
 
     target_include_directories(test_fod PRIVATE "${B}/test")
-    target_link_libraries(test_fod fod "${CMOCKA_LIBRARY}")
+    target_link_libraries(test_fod fod "${CMOCKA_LIBRARY}" ${OpenCL_LIBRARIES})
     
     # Gather all '*.c' files from 'rvlmfdtd-test' target into TEST_SOURCES.
     get_target_property(TEST_SOURCES_TMP test_fod SOURCES)
