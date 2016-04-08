@@ -33,6 +33,7 @@
 
 # IDE user configuration.
 *.user
+.idea/
 
 # Build directories
 build*/
