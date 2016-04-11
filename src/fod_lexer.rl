@@ -45,6 +45,10 @@ int fod_lexer_tokenize(
        means 'EOF'. Let's return it in case of errors. */
     *out_major = 0;
     
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wswitch-default"
+    #pragma GCC diagnostic ignored "-Wsign-conversion"
+
     %%{
     number = digit+;
     single_quoted_string = "'" ([^']|"\\'")* "'";
@@ -303,6 +307,8 @@ int fod_lexer_tokenize(
     write exec;
 
     }%%
+
+    #pragma GCC diagnostic pop
 
     if (*out_major == 0) {
         if (p == pe)
