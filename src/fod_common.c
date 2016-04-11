@@ -15,7 +15,7 @@ int fod_substring_to_uint(
     char const *c = start;
 
     /** We're not really going to support THAT long numbers. Nineteen
-        digits are enouth for all purposes of this century. */
+        digits are enough for all purposes of this century. */
     if (end - start > 19)
 	return 0;
     
