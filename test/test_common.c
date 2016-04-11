@@ -28,4 +28,6 @@ extern void test_common_substring_duplicate(void **st) {
 					          fod_std_realloc, NULL);
     assert_non_null(res);
     assert_string_equal(res, "1'");
+
+    fod_std_realloc(res, 0, NULL);
 }
