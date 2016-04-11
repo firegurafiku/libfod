@@ -1,6 +1,17 @@
 #include "fod_common.h"
 #include "string.h"
 
+struct fod_opencl *
+fod_std_opencl(void) {
+
+    static struct fod_opencl opencl = {
+        clGetPlatformIDs,
+	clGetDeviceIDs,
+	clGetPlatformInfo,
+	clGetDeviceInfo };
+    
+    return &opencl;
+}
 
 void *fod_std_realloc(void *p, size_t n, void *arg) {
     (void)arg;
