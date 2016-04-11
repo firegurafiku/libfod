@@ -6,7 +6,7 @@
 %% machine fod_lexer;
 %% write data;
 
-void fod_lexer_init(
+void fod_lexer_reset(
 	struct fod_lexer *lex,
 	char const       *input,
 	fod_reallocator   realloc,
@@ -23,10 +23,6 @@ void fod_lexer_init(
     lex->current_position    = input;
     lex->current_state       = fod_lexer_start;
     lex->current_action      = 0;
-}
-
-void fod_lexer_close(struct fod_lexer *lex) {
-    (void)lex; /* Actually, nothing. */
 }
 
 int fod_lexer_tokenize(

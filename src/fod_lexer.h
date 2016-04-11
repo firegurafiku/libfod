@@ -56,17 +56,16 @@ struct fod_lexer {
     int current_action;
 };
 
-void fod_lexer_init(
+void fod_lexer_reset(
         struct fod_lexer *lex,
-	char const       *input,
-	fod_reallocator   realloc,
-	void             *realloc_arg);
+        char const *input,
+        fod_reallocator realloc,
+        void *realloc_arg);
 
 int fod_lexer_tokenize(
         struct fod_lexer        *lex,
         enum fod_lexeme_major   *out_major,
         struct fod_lexeme_minor *out_minor);
 
-void fod_lexer_close(struct fod_lexer *lex);
 
 #endif

@@ -9,7 +9,7 @@ extern void test_lexer_valid1(void **st) {
     (void)st;
 
     struct fod_lexer lex;
-    fod_lexer_init(&lex, "   ((!!=&&||>>===<<===  ", NULL, NULL);
+    fod_lexer_reset(&lex, "   ((!!=&&||>>===<<===  ", NULL, NULL);
 
     int expected[] = {
 	LEX_PAREN_LEFT,   LEX_PAREN_LEFT,  LEX_OPERATOR_NOT, LEX_OPERATOR_NE,
@@ -40,7 +40,7 @@ extern void test_lexer_valid2(void **st) {
     (void)st;
 
     struct fod_lexer lex;
-    fod_lexer_init(&lex, "12345 1234567890123456789", NULL, NULL);
+    fod_lexer_reset(&lex, "12345 1234567890123456789", NULL, NULL);
 
     int res;
     enum fod_lexeme_major maj;
@@ -75,7 +75,7 @@ extern void test_lexer_valid3(void **st) {
 	"\t '[\\n\\t\\f\\v\\a\\b\\0\\r]'  ";
 	
     struct fod_lexer lex;
-    fod_lexer_init(&lex, expression, fod_std_realloc, NULL);
+    fod_lexer_reset(&lex, expression, fod_std_realloc, NULL);
 
     char const *expected[] = {
         "",
@@ -109,8 +109,6 @@ extern void test_lexer_valid3(void **st) {
     assert_false(res);
     assert_true(lex.is_eof);
     assert_false(lex.is_error);
-
-    fod_lexer_close(&lex);
 }
 
 extern void test_lexer_valid_identifiers(void **st) {
@@ -119,7 +117,7 @@ extern void test_lexer_valid_identifiers(void **st) {
     char const *expression = " !device_available && deviceAvailable  ";
 
     struct fod_lexer lex;
-    fod_lexer_init(&lex, expression, fod_std_realloc, NULL);
+    fod_lexer_reset(&lex, expression, fod_std_realloc, NULL);
 
     int res;
     enum fod_lexeme_major maj;
@@ -155,6 +153,4 @@ extern void test_lexer_valid_identifiers(void **st) {
     assert_false(res);
     assert_true(lex.is_eof);
     assert_false(lex.is_error);
-
-    fod_lexer_close(&lex);
 }
