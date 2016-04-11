@@ -10,6 +10,11 @@ typedef void *(*fod_reallocator)(void *p, size_t n, void *arg);
 
 void *fod_std_realloc(void *p, size_t n, void *arg);
 
+char *fod_strdup(
+		char const *str,
+		fod_reallocator   realloc,
+		void             *realloc_arg);
+
 int fod_substring_to_uint(
         fod_longest_uint *out,
 	char const       *start,

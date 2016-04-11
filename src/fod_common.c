@@ -1,5 +1,6 @@
 #include "fod_common.h"
-#include "stdlib.h"
+#include "string.h"
+
 
 void *fod_std_realloc(void *p, size_t n, void *arg) {
     (void)arg;
@@ -30,6 +31,20 @@ int fod_substring_to_uint(
 
     *out = res;
     return 1;
+}
+
+char *fod_strdup(
+		char const *str,
+		fod_reallocator   realloc,
+		void             *realloc_arg) {
+
+	size_t len = strlen(str);
+	char *p = realloc(NULL, len+1, realloc_arg);
+	if (!p)
+		return NULL;
+
+	strcpy(p, str);
+	return p;
 }
 
 char *fod_substring_duplicate_and_unquote(
