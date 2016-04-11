@@ -12,7 +12,7 @@ int fod_substring_to_uint(
 	char const       *end) {
 
     fod_longest_uint res = 0;
-    char *c = start;
+    char const *c = start;
 
     /** We're not really going to support THAT long numbers. Nineteen
         digits are enouth for all purposes of this century. */
@@ -21,7 +21,7 @@ int fod_substring_to_uint(
     
     // http://stackoverflow.com/a/868508/1447225
     while (c < end && '0' <= *c && *c <= '9') {
-	res = res*10 + (*c - '0');
+	res = res*10 + (unsigned)(*c - '0');
 	++c;
     }
 
@@ -38,7 +38,7 @@ char *fod_substring_duplicate_and_unquote(
 	fod_reallocator   realloc,
 	void             *realloc_arg) {
 
-    char *c =NULL;
+    char const *c =NULL;
     char *dst = NULL;
 
     if (!start || !end || end - start < 2)
@@ -53,7 +53,7 @@ char *fod_substring_duplicate_and_unquote(
     ++start;
     --end;
 
-    int delta = 0;
+    size_t delta = 0;
     for (c = start; c < end; ) {
         if (*c != '\\')
 	    ++c;
@@ -84,7 +84,7 @@ char *fod_substring_duplicate_and_unquote(
 	}
     }
 
-    size_t n = end - start - delta + 1;
+    size_t n = (size_t)(end - start) - delta + 1;
     char *p = realloc(NULL, n, realloc_arg);
     
     if (!p)

@@ -5,6 +5,8 @@
 #include "fod_common.h"
 
 extern void test_common_substring_to_uint_1(void **st) {
+    (void)st;
+
     char const *str = "12345678901234567890123456";
     fod_longest_uint res = 0;
     int ok;
@@ -15,6 +17,7 @@ extern void test_common_substring_to_uint_1(void **st) {
 }
 
 extern void test_common_substring_duplicate(void **st) {
+    (void)st;
 
     char const *str = "'1\\'' - \"3\\\"'\\n4\"";
     //                 '1\''     "3\\"'\n4"
