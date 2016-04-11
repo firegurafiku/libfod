@@ -85,10 +85,13 @@ int fod_lexer_tokenize(
 
         single_quoted_string |
         double_quoted_string => {
-	    char *str = fod_substring_duplicate_and_unquote(ts, te,
+            char *str = NULL;
+            if (lex->realloc) {
+	            str = fod_substring_duplicate_and_unquote(ts, te,
                                             lex->realloc, lex->realloc_arg);
-	    if (str == NULL)
-	        fbreak;
+	            if (str == NULL)
+    	            fbreak;
+	        }
 
             *out_major = LEX_LITERAL_STRING;
             out_minor->literal_string = str;
