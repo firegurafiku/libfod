@@ -7,6 +7,11 @@
     #include <assert.h>
     #include <stdio.h>
     #include "fod_parser.h"
+
+    /* I just cannot see these warnings anymore. It would be great to tell
+       the Lemon author to fix them. */
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wunused-parameter"
 }
 
 %left TOK_OPERATOR_OR.
