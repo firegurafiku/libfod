@@ -68,4 +68,14 @@ int fod_lexer_tokenize(
         struct fod_lexeme_minor *out_minor);
 
 
+static inline void fod_free_lexeme(
+        enum fod_lexeme_major    lexmaj,
+        struct fod_lexeme_minor *lexmin,
+        fod_reallocator          realloc,
+        void                    *realloc_arg) {
+
+    if (lexmaj == LEX_LITERAL_STRING)
+        realloc(lexmin->literal_string, 0, realloc_arg);
+}
+
 #endif
