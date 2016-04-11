@@ -99,6 +99,7 @@ add_custom_command(
     COMMENT "Generating parser code with LEMON")
 
 add_library(fod STATIC
+        "${S}/src/fod_devfind.c"
     "${B}/src/fod_lexer.c"
     "${S}/src/fod_parser.c"
     "${B}/src/fod_parser_gen.c"
