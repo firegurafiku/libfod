@@ -18,22 +18,27 @@ void  fod_lemon_parser_(void *yyp, int yymajor, union fod_token yyminor, struct 
 
 int fod_parser_init(
         struct fod_parser *out,
-	fod_reallocator realloc, void *realloc_arg) {
+        fod_reallocator    realloc,
+        void              *realloc_arg) {
 
+    void *p = NULL;
     saved_realloc = realloc;
     saved_arg     = realloc_arg;
 
-    void *p = fod_lemon_parser_Alloc(kinda_malloc);
-    if (p == NULL)
-	return 0;
+    p = fod_lemon_parser_Alloc(kinda_malloc);
 
+    out->realloc = realloc;
+    out->realloc_arg = realloc_arg;
     out->lemon_parser = p;
     out->result = 0;
     out->is_error = 0;
+    return (p != NULL);
 }
 
 void fod_parser_close(struct fod_parser *parser) {
+
     fod_lemon_parser_Free(parser->lemon_parser, kinda_free);
+    parser->lemon_parser = NULL;
 }
 
 void fod_parser_consume_token(
