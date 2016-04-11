@@ -2,6 +2,8 @@
 #include <stdarg.h>
 #include <setjmp.h>
 #include <cmocka.h>
+#include <string.h>
+#include "fod_common.h"
 #include "fod_parser.h"
 
 extern void test_parser_valid1(void **st) {
@@ -14,6 +16,7 @@ extern void test_parser_valid1(void **st) {
     struct fod_parser parser;
     
     fod_parser_init(&parser, fod_std_realloc, NULL);
+    parser.destruct_tokens = 1;
 
     maj = TOK_NUMBER;
     min.number = 1;
@@ -34,7 +37,7 @@ extern void test_parser_valid1(void **st) {
     assert_false(parser.is_error);
     
     maj = TOK_STRING;
-    min.string = "aa";
+    min.string = fod_strdup("aa", fod_std_realloc, NULL);
     fod_parser_consume_token(&parser, maj, &min);
     assert_false(parser.is_error);
     
@@ -43,12 +46,13 @@ extern void test_parser_valid1(void **st) {
     assert_false(parser.is_error);
 
     maj = TOK_STRING;
-    min.string = "aa";
+    min.string = fod_strdup("aa", fod_std_realloc, NULL);
     fod_parser_consume_token(&parser, maj, &min);
     assert_false(parser.is_error);
 
     fod_parser_consume_token(&parser, 0, &min);
-    assert_true(parser.result);
-    
+    assert_false(parser.is_error);
+    assert_true(parser.result); // Expression evaluates to true!
+
     fod_parser_close(&parser);
 }

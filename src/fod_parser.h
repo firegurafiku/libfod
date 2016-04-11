@@ -6,7 +6,7 @@
 
 union fod_token {
     fod_longest_uint number;
-    char const      *string;
+    char            *string;
     int              boolean;
 };
 
@@ -14,6 +14,7 @@ struct fod_parser {
     void            *lemon_parser;
     fod_reallocator  realloc;
     void            *realloc_arg;
+	int              destruct_tokens;
     int              result;
     int              is_error;
 };

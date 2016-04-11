@@ -6,6 +6,7 @@
 %include{
     #include <assert.h>
     #include <stdio.h>
+    #include <string.h>
     #include "fod_parser.h"
 
     /* I just cannot see these warnings anymore. It would be great to tell
@@ -25,6 +26,14 @@
 %left TOK_OPERATOR_NOT.
 
 %token_type {union fod_token}
+
+%token_destructor {
+
+    if (state->destruct_tokens && yymajor == TOK_STRING) {
+        printf("PARSER: destruct string: %s\n", $$.string);
+        state->realloc((void*)($$.string), 0, state->realloc_arg);
+    }
+}
 
 %stack_overflow {
     state->is_error = 1;
@@ -57,5 +66,23 @@ comparison(R) ::= TOK_NUMBER(A) TOK_OPERATOR_LT TOK_NUMBER(B). { R = (A.number <
 comparison(R) ::= TOK_NUMBER(A) TOK_OPERATOR_GT TOK_NUMBER(B). { R = (A.number >  B.number); }
 comparison(R) ::= TOK_NUMBER(A) TOK_OPERATOR_LE TOK_NUMBER(B). { R = (A.number <= B.number); }
 comparison(R) ::= TOK_NUMBER(A) TOK_OPERATOR_GE TOK_NUMBER(B). { R = (A.number >= B.number); }
-comparison(R) ::= TOK_STRING(A) TOK_OPERATOR_EQ TOK_STRING(B). { R = strcmp(A.string, B.string) == 0; }
-comparison(R) ::= TOK_STRING(A) TOK_OPERATOR_NE TOK_STRING(B). { R = strcmp(A.string, B.string) != 0; }
+
+comparison(R) ::= TOK_STRING(A) TOK_OPERATOR_EQ TOK_STRING(B). {
+    R = strcmp(A.string, B.string) == 0;
+    if (state->destruct_tokens) {
+        printf("PARSER: destruct string: %s\n", A.string);
+        printf("PARSER: destruct string: %s\n", B.string);
+        state->realloc(A.string, 0, state->realloc_arg);
+        state->realloc(B.string, 0, state->realloc_arg);
+    }
+}
+
+comparison(R) ::= TOK_STRING(A) TOK_OPERATOR_NE TOK_STRING(B). {
+    R = strcmp(A.string, B.string) != 0;
+    if (state->destruct_tokens) {
+        printf("PARSER: destruct string: %s\n", A.string);
+        printf("PARSER: destruct string: %s\n", B.string);
+        state->realloc(A.string, 0, state->realloc_arg);
+        state->realloc(B.string, 0, state->realloc_arg);
+    }
+}
